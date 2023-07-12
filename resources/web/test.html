@@ -13,56 +13,6 @@
 var kbt = (function () {
     var that = {};
     
-    function encrypt(str, pwd) {
-        if(str == '') {
-            return '';
-        }
-        str = encodeURIComponent(str);
-        if(!pwd || pwd == '') {
-            pwd = 'kb1234';
-        }
-        pwd = encodeURIComponent(pwd);   
-        if(pwd == '' || pwd.length <= 0) {
-            return '';
-        }
-        var prand = '';
-        for(var i = 0, len = pwd.length; i < len; i += 1) {
-            prand += pwd.charCodeAt(i).toString();
-        }
-        var sPos = Math.floor(prand.length / 5);
-        var mult = parseInt(prand.charAt(sPos) + prand.charAt(sPos * 2) + prand.charAt(sPos * 3) +
-                   prand.charAt(sPos * 4) + prand.charAt(sPos * 5));
-        var incr = Math.ceil(pwd.length / 2);
-        var modu = Math.pow(2, 31) - 1;
-        if(mult < 2) {
-            return '';
-        }
-        var salt = Math.round(Math.random() * 1000000000) % 100000000;
-        prand += salt;   
-        while(prand.length > 10) {
-            prand = (parseInt(prand.substring(0, 10)) + 
-                     parseInt(prand.substring(10, prand.length))).toString();
-        } 
-        prand = (mult * prand + incr) % modu;
-        var encChr = '';
-        var encStr = '';
-        for(var i = 0, len = str.length; i < len; i += 1) {
-            encChr = parseInt(str.charCodeAt(i) ^ Math.floor((prand / modu) * 255));
-            if(encChr < 16) {
-                encStr += '0' + encChr.toString(16);
-            }else{
-                encStr += encChr.toString(16);
-            }
-            prand = (mult * prand + incr) % modu;
-        }   
-        salt = salt.toString(16);
-        while(salt.length < 8) {
-            salt = "0" + salt;
-        }
-        encStr += salt;
-        return encStr;
-    }
-
     function decrypt(str, pwd) {
         if(str == ''){
             return '';
@@ -103,36 +53,32 @@ var kbt = (function () {
         }
         return decodeURIComponent(encStr);
     }
-
-    that.encrypt = encrypt;
+    
+   
     that.decrypt = decrypt;
     return that;
 })();
 
 
-let xmlHttp = new XMLHttpRequest();
-if( !xmlHttp ){
-   xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+  let xmlHttp = new XMLHttpRequest();
+  if( !xmlHttp ){
+     xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlHttp.open("HEAD",location.href,false);
+  xmlHttp.send();
+  var severtime=new Date(xmlHttp.getResponseHeader("Date"));
+  const token = localStorage.getItem('token');
+  var expStr =  kbt.decrypt(token);
+  var expDate = new Date(expStr);
+  alert(expStr);
+
+var result = Date.parse(expDate) > Date.parse(severtime);
+alert(result);
+if(result == false){
+    window.location.href="./login.html";
 }
-xmlHttp.open("HEAD",location.href,false);
-xmlHttp.send();
-let severtime=new Date(xmlHttp.getResponseHeader("Date"));
-let time = severtime.toLocaleTimeString();
-  
-console.log(severtime)
-console.log(time)
-
-  var code = kbt.encrypt('2023-07-11');
-  
 
 
-
-
-  localStorage.setItem('key', code);
-  const value = localStorage.getItem('key');
-  alert(value);
-  var str =  kbt.decrypt(value);
-  alert(str);
 </script>
 
 </body>

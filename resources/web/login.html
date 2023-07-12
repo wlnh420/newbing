@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>请输入AI秘钥</h2>
+
+<p><input size="50" type="text" value="" id="code" /> <button onclick="run()">确定</button></p>
+
+<script>
+
+
+function run(){
+
+    var code = document.getElementById("code").value;
+    if(code==''){
+        alert('请输入秘钥');
+        return;
+    }
+    localStorage.setItem('token', code);
+    //跳转
+    window.location.href="./NewBingGoGo.html";
+
+}
+
+
+</script>
+
+
+</body>
+</html>
